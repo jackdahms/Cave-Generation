@@ -51,9 +51,14 @@ public class Cave {
 	public void simpleSmoothMap() {
 		for (int r = 0; r < height; r++) {
 			for (int c = 0; c < width; c++) {
-				
+				if (countSurroundingWalls(r, c) < 4) map[r][c] = 0;
+				else if (countSurroundingWalls(r, c) > 4) map[r][c] = 1;
 			}
 		}
+	}
+	
+	public int countSurroundingWalls(int r, int c) {
+		
 	}
 
 }
