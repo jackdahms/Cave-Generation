@@ -28,6 +28,7 @@ public class CaveGenerator extends JPanel{
 		cave = new Cave(width, height);
 		cave.fillMap(0.5f);
 		for (int i = 0; i < 5; i++) cave.simpleSmoothMap();
+//		cave.simpleSmoothMap();
 	}
 	
 	@Override
