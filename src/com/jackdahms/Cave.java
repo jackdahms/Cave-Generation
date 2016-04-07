@@ -58,7 +58,15 @@ public class Cave {
 	}
 	
 	public int countSurroundingWalls(int r, int c) {
-		
+		int count = 0;
+		for (int i = r - 1; i < r + 2; i++) {
+			for (int k = c - 1; k < c + 2; k++) {
+				try {
+					if ((i != r || k != c) && map[i][k] == 1) count++;
+				} catch (Exception e) {} //try is much simple than a few more if statements
+			}
+		}
+		return count;
 	}
 
 }
