@@ -48,6 +48,7 @@ public class Cave {
 		}
 	}
 	
+	//cave formations seem to point in combined vectors of row and column
 	public void simpleSmoothMap() {
 		for (int r = 0; r < height; r++) {
 			for (int c = 0; c < width; c++) {
