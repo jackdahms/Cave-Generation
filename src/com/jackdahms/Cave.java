@@ -69,5 +69,39 @@ public class Cave {
 		}
 		return count;
 	}
+	
+	/**
+	 * Fills the border of the map to make the edges walls
+	 * @param width number of cells wide to make the border
+	 */
+	public void fillBorder(int width) {
+		//top wall
+		for (int r = 0; r < width; r++) {
+			for (int c = 0; c < this.width; c++) {
+				map[r][c] = 1;
+			}
+		}
+		
+		//left wall
+		for (int r = 0; r < height; r++) {
+			for (int c = 0; c < width; c++) {
+				map[r][c] = 1;
+			}
+		}
+		
+		//right wall
+		for (int r = 0; r < height; r++) {
+			for (int c = this.width - width; c < this.width; c++) {
+				map[r][c] = 1;
+			}
+		}
+		
+		//bottom wall
+		for (int r = height - width; r < height; r++) {
+			for (int c = 0; c < this.width; c++) {
+				map[r][c] = 1;
+			}
+		}
+	}
 
 }
