@@ -7,21 +7,31 @@ import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class CaveGenerator extends JPanel implements KeyListener{
 	
-	static int width = 800;
-	static int height = 600;
+	static int FRAME_WIDTH = 1000;
+	static int FRAME_HEIGHT = 600;
 	
+	int width = 200;
+	int height = 150;
 	int cellSize = 4;
-	int borderWidth = 5;
+	int borderWidth = 4;
 	int smoothingIterations = 5;
 	
 	Cave cave;
 	
 	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		JFrame frame = new JFrame("Cave Generation");
-		frame.setSize(width, height + 30);
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT + 30);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -31,10 +41,11 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	}
 	
 	public CaveGenerator() {
-		cave = new Cave(width / cellSize, height / cellSize);
+		cave = new Cave(width, height);
 		generate();
 	}
 	
+	//TODO make cave a buffered image
 	@Override
 	public void paintComponent(Graphics g) {
 		for (int r = 0; r < cave.height; r++) {
@@ -46,6 +57,9 @@ public class CaveGenerator extends JPanel implements KeyListener{
 				g.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
 			}
 		}
+		
+		g.setColor(Color.white);
+		g.fillRect(800, 0, 200, 600);
 	}
 	
 	void generate() {
@@ -55,16 +69,10 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	}
 
 	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void keyTyped(KeyEvent e) {}
 
 	@Override
-	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void keyPressed(KeyEvent e) {}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
