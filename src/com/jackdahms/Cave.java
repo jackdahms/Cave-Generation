@@ -1,5 +1,8 @@
 package com.jackdahms;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class Cave {
@@ -10,6 +13,8 @@ public class Cave {
 	long seed = 0;
 	
 	int[][] map; 
+	
+	BufferedImage image;
 	
 	/**
 	 * Create a new cave.
@@ -49,13 +54,22 @@ public class Cave {
 	}
 	
 	//cave formations seem to point in combined vectors of row and column
-	public void simpleSmoothMap() {
+	public void simpleSmoothMap(Generatable g) {
+		map = g.generate();
+	}
+	
+	public void mapToImage() {
+		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		
+		Graphics2D g = image.createGraphics();
 		for (int r = 0; r < height; r++) {
 			for (int c = 0; c < width; c++) {
-				if (countSurroundingWalls(r, c) < 4) map[r][c] = 0;
-				else if (countSurroundingWalls(r, c) > 4) map[r][c] = 1;
+				if (map[r][c] == 1) g.setColor(Color.black);
+				else g.setColor(Color.white);
+				g.fillRect(c, r, 1, 1);
 			}
 		}
+		g.dispose();
 	}
 	
 	public int countSurroundingWalls(int r, int c) {
