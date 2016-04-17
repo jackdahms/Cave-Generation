@@ -31,6 +31,8 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	List<Cave> presets = new ArrayList<Cave>();
 	
 	Cave cave;
+	
+	float fillDensity = 0.48f;
 				
 	public static void main(String[] args) {
 		try {
@@ -56,7 +58,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		SpringLayout layout = new SpringLayout();
 		setLayout(layout);
 		
-		int fillDensity = 48;
+		int defaultFillDensity = 48;
 
 		JTextField fillDensityField = new JTextField();
 		JLabel fillDensityLabel = new JLabel("Initial Fill Density");
@@ -64,12 +66,14 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 		JButton regenerateButton = new JButton("Regenerate");
 		
-		fillDensityField.setText("" + fillDensity);
+		fillDensityField.setText("" + defaultFillDensity);
 		fillDensityField.setAlignmentX(JTextField.RIGHT_ALIGNMENT);
 		fillDensityField.setColumns(3);
 		fillDensityField.addCaretListener((CaretEvent e) -> {
 			try {
-				fillDensitySlider.setValue(Integer.parseInt(fillDensityField.getText()));
+				int fill = Integer.parseInt(fillDensityField.getText());
+				fillDensitySlider.setValue(fill);
+				fillDensity = (float) fill / 100f;
 			} catch (Exception e1) {
 //				cannot mutate in notification
 //				fillDensityField.setText("" + fillDensitySlider);
@@ -84,7 +88,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		layout.putConstraint(SpringLayout.EAST, fillDensityLabel, -20, SpringLayout.WEST, fillDensityField);
 		add(fillDensityLabel);
 		
-		fillDensitySlider.setValue(fillDensity);
+		fillDensitySlider.setValue(defaultFillDensity);
 		fillDensitySlider.addChangeListener((ChangeEvent e) -> {
 			fillDensityField.setText("" + fillDensitySlider.getValue());
 		});
@@ -97,7 +101,6 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		add(fillDensitySlider);
 		
 		regenerateButton.addActionListener((ActionEvent e) -> {
-			System.out.println("hey");
 			generate();
 		});
 		layout.putConstraint(SpringLayout.SOUTH, regenerateButton, -5, SpringLayout.SOUTH, this);
@@ -136,6 +139,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 			}
 			return cave.map;
 		});
+		System.out.println("kk");
 		cave.mapToImage();
 	}
 
