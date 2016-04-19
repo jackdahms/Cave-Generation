@@ -9,6 +9,9 @@ public class Cave {
 	
 	int width, height;
 	
+	//in countSurroundingWalls, whether outside of the map should be treated as walls or space
+	boolean treatEdgesAsWalls = true; 
+	
 	boolean setSeed = false;
 	long seed = 0;
 	
@@ -49,6 +52,7 @@ public class Cave {
 		for (int r = 0; r < height; r++) {
 			for (int c = 0; c < width; c++) {
 				if (ayn.nextFloat() < fillPercent) map[r][c] = 1;
+				else map[r][c] = 0; //need an else so map can be regenerated w/o new cave object
 			}
 		}
 	}
@@ -76,9 +80,19 @@ public class Cave {
 		int count = 0;
 		for (int i = r - 1; i < r + 2; i++) {
 			for (int k = c - 1; k < c + 2; k++) {
-				try {
-					if ((i != r || k != c) && map[i][k] == 1) count++;
-				} catch (Exception e) {} //try is much simple than a few more if statements
+				if (i != r || k != c) { //true for surrounding tiles but not the tile itself
+					if (treatEdgesAsWalls) {
+						if (i > -1 && i < map.length && k > -1 && k < map[0].length) { //true if tile is inside map
+							if (map[i][k] == 1) count++;
+						} else {
+							count++; //count invalid tiles as walls
+						}
+					} else {
+						try {
+							if (map[i][k] == 1) count++;
+						} catch (Exception e) {} //if not treating edge as walls, don't count edges 
+					}
+				}
 			}
 		}
 		return count;
