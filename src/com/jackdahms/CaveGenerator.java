@@ -31,7 +31,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 	static int FRAME_WIDTH = 1000;
 	static int FRAME_HEIGHT = 600;
-	
+
 	List<Cave> presets = new ArrayList<Cave>();
 	
 	Cave cave;
@@ -58,7 +58,6 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	}
 	
 	public CaveGenerator() {
-		cave = new Cave(200, 150);
 		generate();
 		
 		createGUI();
@@ -80,6 +79,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	}
 	
 	void generate() {
+		cave = new Cave(width, height);
 		int smoothingIterations = 5;
 		cave.fillMap(fillDensity);
 		cave.fillBorder(2);
@@ -119,7 +119,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		JLabel heightLabel = new JLabel("Height");
 		JSpinner widthSpinner = new JSpinner();
 		JSpinner heightSpinner = new JSpinner();
-		JSlider widthSlider = new JSlider();
+		JSlider widthSlider = new JSlider(); //TODO do i even need dimension sliders note: dims set on sliders, density set on spinner
 		JSlider heightSlider = new JSlider();
 		
 		JLabel randomSeedLabel = new JLabel("Use Random Seed");
@@ -136,12 +136,18 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 		JButton fillDensityButton = new JButton("Fill New Cave");
 		
+		JLabel iterationsLabel = new JLabel("Smoothing Iterations");
+		JSpinner iterationsSpinner = new JSpinner();
+		JSlider iterationsSlider = new JSlider();
+		
 		JButton regenerateButton = new JButton("Generate New Cave");
 		
 		SpinnerNumberModel numberModel = new SpinnerNumberModel();
 		numberModel.setMinimum(10);
-		numberModel.setMaximum(10000);
+		numberModel.setMaximum(5000);
 		widthSpinner.setModel(numberModel);
+		widthSpinner.setValue(defaultWidth);
+		widthSpinner.addChangeListener((ChangeEvent e) -> widthSlider.setValue((int) widthSpinner.getValue()));
 		layout.putConstraint(SpringLayout.NORTH, widthSpinner, 5, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.EAST, widthSpinner, -5, SpringLayout.EAST, this);
 		add(widthSpinner);
@@ -155,15 +161,20 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		widthSlider.setMinimum(0);
 		widthSlider.setMaximum((int)((SpinnerNumberModel) widthSpinner.getModel()).getMaximum());
 		widthSlider.setValue(defaultWidth);
-		widthSlider.addChangeListener((ChangeEvent e) -> widthSpinner.setValue(widthSlider.getValue()));
+		widthSlider.addChangeListener((ChangeEvent e) -> {
+			width = widthSlider.getValue();
+			widthSpinner.setValue(width);
+		});
 		layout.putConstraint(SpringLayout.NORTH, widthSlider, 10, SpringLayout.SOUTH, widthLabel);
 		layout.putConstraint(SpringLayout.EAST, widthSlider, -5, SpringLayout.EAST, this);
 		add(widthSlider);
 		
 		numberModel = new SpinnerNumberModel();
 		numberModel.setMinimum(10);
-		numberModel.setMaximum(10000);
+		numberModel.setMaximum(5000);
 		heightSpinner.setModel(numberModel);
+		heightSpinner.setValue(defaultHeight);
+		heightSpinner.addChangeListener((ChangeEvent e) -> heightSlider.setValue((int) heightSpinner.getValue()));
 		layout.putConstraint(SpringLayout.NORTH, heightSpinner, 5, SpringLayout.SOUTH, widthSlider);
 		layout.putConstraint(SpringLayout.EAST, heightSpinner, -5, SpringLayout.EAST, this);
 		add(heightSpinner);
@@ -172,13 +183,26 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		layout.putConstraint(SpringLayout.WEST, heightLabel, -195, SpringLayout.EAST, this);
 		add(heightLabel);
 		
+		heightSlider.setPreferredSize(new Dimension(190, 20));
+		heightSlider.setBackground(Color.white);
+		heightSlider.setMinimum(0);
+		heightSlider.setMaximum((int)((SpinnerNumberModel) heightSpinner.getModel()).getMaximum());
+		heightSlider.setValue(defaultHeight);
+		heightSlider.addChangeListener((ChangeEvent e) -> {
+			height = heightSlider.getValue();
+			heightSpinner.setValue(height);
+		});
+		layout.putConstraint(SpringLayout.NORTH, heightSlider, 10, SpringLayout.SOUTH, heightLabel);
+		layout.putConstraint(SpringLayout.EAST, heightSlider, -5, SpringLayout.EAST, this);
+		add(heightSlider);
+		
 		seedCheckBox.setBackground(Color.white);
 		seedCheckBox.setSelected(true);
 		seedCheckBox.addActionListener((ActionEvent e) -> {
 			cave.setSeed = !seedCheckBox.isSelected();
 			seedField.setEnabled(cave.setSeed);
 		});
-		layout.putConstraint(SpringLayout.NORTH, seedCheckBox, 5, SpringLayout.SOUTH, heightSpinner);
+		layout.putConstraint(SpringLayout.NORTH, seedCheckBox, 5, SpringLayout.SOUTH, heightSlider);
 		layout.putConstraint(SpringLayout.EAST, seedCheckBox, -5, SpringLayout.EAST, this);
 		add(seedCheckBox);
 		
@@ -202,7 +226,10 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		numberModel.setMaximum(1000);
 		fillDensitySpinner.setModel(numberModel);
 		fillDensitySpinner.setValue(defaultFillDensity);
-		fillDensitySpinner.addChangeListener((ChangeEvent e) -> fillDensity = (float)(int)fillDensitySpinner.getValue() / 1000f);
+		fillDensitySpinner.addChangeListener((ChangeEvent e) -> {
+			fillDensity = (float)(int)fillDensitySpinner.getValue() / 1000f;
+			fillDensitySlider.setValue((int)fillDensitySpinner.getValue());
+		});
 		layout.putConstraint(SpringLayout.NORTH, fillDensitySpinner, 10, SpringLayout.SOUTH, seedField);
 		layout.putConstraint(SpringLayout.EAST, fillDensitySpinner, -5, SpringLayout.EAST, this);
 		add(fillDensitySpinner);
@@ -217,7 +244,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		fillDensitySlider.setMaximum(1000);
 		fillDensitySlider.setValue(defaultFillDensity);
 		fillDensitySlider.addChangeListener((ChangeEvent e) -> fillDensitySpinner.setValue(fillDensitySlider.getValue()));
-		layout.putConstraint(SpringLayout.NORTH, fillDensitySlider, 10, SpringLayout.SOUTH, fillDensityLabel);
+		layout.putConstraint(SpringLayout.NORTH, fillDensitySlider, 5, SpringLayout.SOUTH, fillDensitySpinner);
 		layout.putConstraint(SpringLayout.EAST, fillDensitySlider, -5, SpringLayout.EAST, this);
 		add(fillDensitySlider);
 		
@@ -236,6 +263,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 		fillDensityButton.setPreferredSize(new Dimension(190, 30));
 		fillDensityButton.addActionListener((ActionEvent e) -> {
+			cave = new Cave(width, height);
 //			cave.seed = TODO seed string to long
 			cave.fillMap(fillDensity);
 			cave.fillBorder((int)borderSpinner.getValue());
@@ -246,6 +274,22 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		layout.putConstraint(SpringLayout.EAST, fillDensityButton, -5, SpringLayout.EAST, this);
 		add(fillDensityButton);
 		
+		numberModel = new SpinnerNumberModel();
+		numberModel.setMinimum(1);
+		numberModel.setMaximum(20);
+		iterationsSpinner.setModel(numberModel);
+		iterationsSpinner.setPreferredSize(new Dimension(35, 20));
+		iterationsSpinner.setValue(5);
+		iterationsSpinner.addChangeListener((ChangeEvent e) -> iterationsSlider.setValue((int)iterationsSpinner.getValue()));
+		layout.putConstraint(SpringLayout.NORTH, iterationsSpinner, 5, SpringLayout.SOUTH, fillDensityButton);
+		layout.putConstraint(SpringLayout.EAST, iterationsSpinner, -5, SpringLayout.EAST, this);
+		add(iterationsSpinner);
+		
+		layout.putConstraint(SpringLayout.NORTH, iterationsLabel, 1, SpringLayout.NORTH, iterationsSpinner);
+		layout.putConstraint(SpringLayout.WEST, iterationsLabel, -195, SpringLayout.EAST, this);
+		add(iterationsLabel);
+		
+		regenerateButton.setPreferredSize(new Dimension(190, 30));
 		regenerateButton.addActionListener((ActionEvent e) -> generate());
 		layout.putConstraint(SpringLayout.SOUTH, regenerateButton, -5, SpringLayout.SOUTH, this);
 		layout.putConstraint(SpringLayout.EAST, regenerateButton, -5, SpringLayout.EAST, this);
