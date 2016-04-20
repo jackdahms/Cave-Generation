@@ -38,6 +38,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	
 	int width = 200;
 	int height = 150;
+	int smoothingIterations = 5;
 	float fillDensity = 0.48f;
 				
 	public static void main(String[] args) {
@@ -114,13 +115,14 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		int defaultWidth = width;
 		int defaultHeight = height;
 		int defaultFillDensity = (int) (fillDensity * 1000);
+		int defaultIterations = smoothingIterations;
 		
 		JLabel widthLabel = new JLabel("Width");
 		JLabel heightLabel = new JLabel("Height");
 		JSpinner widthSpinner = new JSpinner();
 		JSpinner heightSpinner = new JSpinner();
-		JSlider widthSlider = new JSlider(); //TODO do i even need dimension sliders note: dims set on sliders, density set on spinner
-		JSlider heightSlider = new JSlider();
+		JSlider widthSlider = new JSlider(); //TODO do i even need dimension sliders
+		JSlider heightSlider = new JSlider(); //note: dims set on sliders, density/iterations set on spinners
 		
 		JLabel randomSeedLabel = new JLabel("Use Random Seed");
 		JLabel seedLabel = new JLabel("Seed");
@@ -139,6 +141,9 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		JLabel iterationsLabel = new JLabel("Smoothing Iterations");
 		JSpinner iterationsSpinner = new JSpinner();
 		JSlider iterationsSlider = new JSlider();
+		JButton iterateButton = new JButton("Iterate Once"); //for iterating once
+		JButton smoothButton = new JButton("Smooth Existing Map"); //do all iterations
+		
 		
 		JButton regenerateButton = new JButton("Generate New Cave");
 		
@@ -280,7 +285,10 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		iterationsSpinner.setModel(numberModel);
 		iterationsSpinner.setPreferredSize(new Dimension(35, 20));
 		iterationsSpinner.setValue(5);
-		iterationsSpinner.addChangeListener((ChangeEvent e) -> iterationsSlider.setValue((int)iterationsSpinner.getValue()));
+		iterationsSpinner.addChangeListener((ChangeEvent e) -> {
+			smoothingIterations = (int)iterationsSpinner.getValue();
+			iterationsSlider.setValue(smoothingIterations);
+		});
 		layout.putConstraint(SpringLayout.NORTH, iterationsSpinner, 5, SpringLayout.SOUTH, fillDensityButton);
 		layout.putConstraint(SpringLayout.EAST, iterationsSpinner, -5, SpringLayout.EAST, this);
 		add(iterationsSpinner);
@@ -288,6 +296,19 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		layout.putConstraint(SpringLayout.NORTH, iterationsLabel, 1, SpringLayout.NORTH, iterationsSpinner);
 		layout.putConstraint(SpringLayout.WEST, iterationsLabel, -195, SpringLayout.EAST, this);
 		add(iterationsLabel);
+		
+		iterationsSlider.setPreferredSize(new Dimension(190, 20));
+		iterationsSlider.setBackground(Color.white);
+		iterationsSlider.setMinimum(0);
+		iterationsSlider.setMaximum(20);
+		iterationsSlider.setValue(defaultIterations);
+		iterationsSlider.addChangeListener((ChangeEvent e) -> iterationsSpinner.setValue(iterationsSlider.getValue()));
+		layout.putConstraint(SpringLayout.NORTH, iterationsSlider, 5, SpringLayout.SOUTH, iterationsSpinner);
+		layout.putConstraint(SpringLayout.EAST, iterationsSlider, -5, SpringLayout.EAST, this);
+		add(iterationsSlider);
+		
+		iterateButton.setPreferredSize(new Dimension(190, 30));
+		iterateButton.addActionListener((ActionEvent e) -> System.out.println("once"));
 		
 		regenerateButton.setPreferredSize(new Dimension(190, 30));
 		regenerateButton.addActionListener((ActionEvent e) -> generate());
