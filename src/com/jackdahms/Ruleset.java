@@ -7,10 +7,11 @@ public class Ruleset {
 	String name;
 	float fillDensity;
 	Generatable mapper;
-	List<Generatable> smoothing;
 	
 	public Ruleset(String name, float fillDensity, Generatable mapper) {
-		
+		this.name = name;
+		this.fillDensity = fillDensity;
+		this.mapper = mapper;
 	}
 
 }
