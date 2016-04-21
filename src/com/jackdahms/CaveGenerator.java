@@ -146,7 +146,8 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 		JButton fillDensityButton = new JButton("Fill New Cave");
 		
-		JSpinner rulesetSpinner = new JSpinner();
+		JLabel presetLabel = new JLabel("Ruleset");
+		JSpinner presetSpinner = new JSpinner(); //TODO make this a drop down menu
 		JLabel iterationsLabel = new JLabel("Smoothing Iterations");
 		JSpinner iterationsSpinner = new JSpinner();
 		JSlider iterationsSlider = new JSlider();
@@ -288,6 +289,14 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		add(fillDensityButton);
 		
 		SpinnerListModel listModel = new SpinnerListModel(presetNames);
+		presetSpinner.setModel(listModel);
+		layout.putConstraint(SpringLayout.NORTH, presetSpinner, 5, SpringLayout.SOUTH, fillDensityButton);
+		layout.putConstraint(SpringLayout.EAST, presetSpinner, -5, SpringLayout.EAST, this);
+		add(presetSpinner);
+		
+		layout.putConstraint(SpringLayout.NORTH, presetLabel, 1, SpringLayout.NORTH, presetSpinner);
+		layout.putConstraint(SpringLayout.WEST, presetLabel, -195, SpringLayout.EAST, this);
+		add(presetLabel);
 		
 		numberModel = new SpinnerNumberModel();
 		numberModel.setMinimum(1);
@@ -299,7 +308,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 			smoothingIterations = (int)iterationsSpinner.getValue();
 			iterationsSlider.setValue(smoothingIterations);
 		});
-		layout.putConstraint(SpringLayout.NORTH, iterationsSpinner, 5, SpringLayout.SOUTH, fillDensityButton);
+		layout.putConstraint(SpringLayout.NORTH, iterationsSpinner, 5, SpringLayout.SOUTH, presetSpinner);
 		layout.putConstraint(SpringLayout.EAST, iterationsSpinner, -5, SpringLayout.EAST, this);
 		add(iterationsSpinner);
 		
