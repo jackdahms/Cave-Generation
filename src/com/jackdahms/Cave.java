@@ -58,7 +58,7 @@ public class Cave {
 	}
 	
 	//cave formations seem to point in combined vectors of row and column
-	public void simpleSmoothMap(Generatable g) {
+	public void smooth(Generatable g) {
 		map = g.generate();
 	}
 	
