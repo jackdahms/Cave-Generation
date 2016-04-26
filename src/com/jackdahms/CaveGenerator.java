@@ -33,8 +33,9 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	static int FRAME_WIDTH = 1000;
 	static int FRAME_HEIGHT = 600;
 
-	List<String> presetNames = new ArrayList<String>();
-	List<Generatable> presets = new ArrayList<Generatable>();
+	Ruleset selected;
+	List<Ruleset> rulesets = new ArrayList<Ruleset>();
+	List<String> rulesetNames = new ArrayList<String>();
 	
 	Cave cave;
 	
@@ -87,7 +88,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		cave = new Cave(width, height);
 		cave.fillMap(fillDensity);
 		cave.fillBorder(2);
-		for (int i = 0; i < smoothingIterations; i++) cave.smooth(presets.get(0));
+		for (int i = 0; i < smoothingIterations; i++) cave.smooth(rulesets.get(0).mapper);
 		cave.mapToImage();
 		repaint();
 	}
@@ -104,16 +105,31 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	}
 	
 	private void createPresets() {
-		presetNames.add("default");
-		presets.add(() -> {
-			for (int r = 0; r < height; r++) {
-				for (int c = 0; c < width; c++) {
+		rulesets.add(new Ruleset("default", 0.48f, () -> {
+			for (int r = 0; r < cave.height; r++) {
+				for (int c = 0; c < cave.width; c++) {
 					if (cave.countSurroundingWalls(r, c) < 4) cave.map[r][c] = 0;
 					else if (cave.countSurroundingWalls(r, c) > 4) cave.map[r][c] = 1;
 				}
 			}
 			return cave.map;
-		});
+		}));
+		
+		rulesets.add(new Ruleset("bubbles", 0.59f, () -> {
+			for (int r = 0; r < cave.height; r++) {
+				for (int c = 0; c < cave.width; c++) {
+					if (cave.countSurroundingWalls(r, c) < 3) cave.map[r][c] = 0;
+					else if (cave.countSurroundingWalls(r, c) > 5) cave.map[r][c] = 1;
+				}
+			}
+			return cave.map;
+		}));
+		
+		//set the default ruleset as selected
+		selected = rulesets.get(0);
+		
+		//create list of ruleset names for gui
+		for (Ruleset r : rulesets) rulesetNames.add(r.name);
 	}
 	
 	private void createGUI() {
@@ -129,7 +145,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		JLabel heightLabel = new JLabel("Height");
 		JSpinner widthSpinner = new JSpinner();
 		JSpinner heightSpinner = new JSpinner();
-		JSlider widthSlider = new JSlider(); //TODO do i even need dimension sliders
+		JSlider widthSlider = new JSlider(); //TODO do i even need sliders
 		JSlider heightSlider = new JSlider(); //note: dims set on sliders, density/iterations set on spinners
 		
 		JLabel randomSeedLabel = new JLabel("Use Random Seed");
@@ -151,8 +167,8 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		JLabel iterationsLabel = new JLabel("Smoothing Iterations");
 		JSpinner iterationsSpinner = new JSpinner();
 		JSlider iterationsSlider = new JSlider();
-		JButton iterateButton = new JButton("Iterate Once"); //for iterating once
-		JButton smoothButton = new JButton("Smooth Existing Map"); //do all iterations
+		JButton iterateButton = new JButton("Smooth Once"); //for iterating once
+		JButton smoothButton = new JButton("Smooth 5 Times"); //do all iterations
 		
 		JButton regenerateButton = new JButton("Generate New Cave");
 		
@@ -288,8 +304,15 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		layout.putConstraint(SpringLayout.EAST, fillDensityButton, -5, SpringLayout.EAST, this);
 		add(fillDensityButton);
 		
-		SpinnerListModel listModel = new SpinnerListModel(presetNames);
+		SpinnerListModel listModel = new SpinnerListModel(rulesetNames);
 		presetSpinner.setModel(listModel);
+		presetSpinner.addChangeListener((ChangeEvent e) -> {
+			String name = (String) listModel.getValue();
+			for (Ruleset r : rulesets)
+				if (name.equals(r.name))
+					selected = r;
+			System.out.println(selected.name);
+		});
 		layout.putConstraint(SpringLayout.NORTH, presetSpinner, 5, SpringLayout.SOUTH, fillDensityButton);
 		layout.putConstraint(SpringLayout.EAST, presetSpinner, -5, SpringLayout.EAST, this);
 		add(presetSpinner);
@@ -306,6 +329,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		iterationsSpinner.setValue(5);
 		iterationsSpinner.addChangeListener((ChangeEvent e) -> {
 			smoothingIterations = (int)iterationsSpinner.getValue();
+			smoothButton.setText("Smooth " + smoothingIterations + " Times");
 			iterationsSlider.setValue(smoothingIterations);
 		});
 		layout.putConstraint(SpringLayout.NORTH, iterationsSpinner, 5, SpringLayout.SOUTH, presetSpinner);
@@ -327,13 +351,21 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		add(iterationsSlider);
 		
 		iterateButton.setPreferredSize(new Dimension(190, 30));
-		iterateButton.addActionListener((ActionEvent e) -> System.out.println("once"));
+		iterateButton.addActionListener((ActionEvent e) -> {
+			cave.smooth(rulesets.get(1).mapper);
+			cave.mapToImage();
+			repaint();
+		});
 		layout.putConstraint(SpringLayout.NORTH, iterateButton, 5, SpringLayout.SOUTH, iterationsSlider);
 		layout.putConstraint(SpringLayout.WEST, iterateButton, -195, SpringLayout.EAST, this);
 		add(iterateButton);
 		
 		smoothButton.setPreferredSize(new Dimension(190, 30));
-		smoothButton.addActionListener((ActionEvent e) -> System.out.println("smooth"));
+		smoothButton.addActionListener((ActionEvent e) -> {
+			for (int i = 0; i < smoothingIterations; i++) cave.smooth(rulesets.get(1).mapper);
+			cave.mapToImage();
+			repaint();
+		});
 		layout.putConstraint(SpringLayout.NORTH, smoothButton, 5, SpringLayout.SOUTH, iterateButton);
 		layout.putConstraint(SpringLayout.WEST, smoothButton, -195, SpringLayout.EAST, this);
 		add(smoothButton);
