@@ -42,7 +42,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	int width = 200;
 	int height = 150;
 	int borderWidth = 2;
-	int smoothingIterations = 5;
+	int smoothingIterations = 10;
 	float fillDensity = 0.48f;
 				
 	public static void main(String[] args) {
@@ -339,7 +339,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 				if (name.equals(r.name))
 					selected = r;
 			fillDensitySpinner.setValue((int)(selected.fillDensity * 1000f));
-			iterationsSpinner.setValue(5);
+			iterationsSpinner.setValue(selected.smoothingIterations);
 		});
 		layout.putConstraint(SpringLayout.NORTH, presetSpinner, 5, SpringLayout.SOUTH, fillDensityButton);
 		layout.putConstraint(SpringLayout.EAST, presetSpinner, -5, SpringLayout.EAST, this);
@@ -354,7 +354,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		numberModel.setMaximum(20);
 		iterationsSpinner.setModel(numberModel);
 		iterationsSpinner.setPreferredSize(new Dimension(35, 20));
-		iterationsSpinner.setValue(5);
+		iterationsSpinner.setValue(defaultIterations);
 		iterationsSpinner.addChangeListener((ChangeEvent e) -> {
 			smoothingIterations = (int)iterationsSpinner.getValue();
 			smoothButton.setText("Smooth " + smoothingIterations + " Times");
