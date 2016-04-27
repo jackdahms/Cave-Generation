@@ -41,6 +41,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	
 	int width = 200;
 	int height = 150;
+	int borderWidth = 2;
 	int smoothingIterations = 5;
 	float fillDensity = 0.48f;
 				
@@ -87,8 +88,8 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	void generate() {
 		cave = new Cave(width, height);
 		cave.fillMap(fillDensity);
-		cave.fillBorder(2);
-		for (int i = 0; i < smoothingIterations; i++) cave.smooth(rulesets.get(0).mapper);
+		cave.fillBorder(borderWidth);
+		for (int i = 0; i < smoothingIterations; i++) cave.smooth(selected.mapper);
 		cave.mapToImage();
 		repaint();
 	}
@@ -105,7 +106,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	}
 	
 	private void createPresets() {
-		rulesets.add(new Ruleset("default", 0.48f, () -> {
+		rulesets.add(new Ruleset("default", 0.48f, 10, () -> {
 			for (int r = 0; r < cave.height; r++) {
 				for (int c = 0; c < cave.width; c++) {
 					if (cave.countSurroundingWalls(r, c) < 4) cave.map[r][c] = 0;
@@ -115,10 +116,20 @@ public class CaveGenerator extends JPanel implements KeyListener{
 			return cave.map;
 		}));
 		
-		rulesets.add(new Ruleset("bubbles", 0.59f, () -> {
+		rulesets.add(new Ruleset("chunky", 0.48f, 5, () -> {
 			for (int r = 0; r < cave.height; r++) {
 				for (int c = 0; c < cave.width; c++) {
 					if (cave.countSurroundingWalls(r, c) < 3) cave.map[r][c] = 0;
+					else if (cave.countSurroundingWalls(r, c) > 5) cave.map[r][c] = 1;
+				}
+			}
+			return cave.map;
+		}));
+		
+		rulesets.add(new Ruleset("third", 0.715f, 4, () -> {
+			for (int r = 0; r < cave.height; r++) {
+				for (int c = 0; c < cave.width; c++) {
+					if (cave.countSurroundingWalls(r, c) < 5) cave.map[r][c] = 0;
 					else if (cave.countSurroundingWalls(r, c) > 5) cave.map[r][c] = 1;
 				}
 			}
@@ -139,6 +150,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		int defaultWidth = width;
 		int defaultHeight = height;
 		int defaultFillDensity = (int) (fillDensity * 1000);
+		int defaultBorder = borderWidth;
 		int defaultIterations = smoothingIterations;
 		
 		JLabel widthLabel = new JLabel("Width");
@@ -159,6 +171,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 		JSpinner borderSpinner = new JSpinner();
 		JLabel borderLabel = new JLabel("Border Width");
+		JSlider borderSlider = new JSlider();
 		
 		JButton fillDensityButton = new JButton("Fill New Cave");
 		
@@ -280,9 +293,13 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 		numberModel = new SpinnerNumberModel();
 		numberModel.setMinimum(0);
-		numberModel.setMaximum(100);
+		numberModel.setMaximum(30);
 		borderSpinner.setModel(numberModel);
 		borderSpinner.setValue(2);
+		borderSpinner.addChangeListener((ChangeEvent e) -> {
+			borderWidth = (int) borderSpinner.getValue();
+			borderSlider.setValue(borderWidth);
+		});
 		layout.putConstraint(SpringLayout.NORTH, borderSpinner, 5, SpringLayout.SOUTH, fillDensitySlider);
 		layout.putConstraint(SpringLayout.EAST, borderSpinner, -5, SpringLayout.EAST, this);
 		add(borderSpinner);
@@ -290,6 +307,16 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		layout.putConstraint(SpringLayout.NORTH, borderLabel, 1, SpringLayout.NORTH, borderSpinner);
 		layout.putConstraint(SpringLayout.WEST, borderLabel, -195, SpringLayout.EAST, this);
 		add(borderLabel);
+		
+		borderSlider.setPreferredSize(new Dimension(190, 20));
+		borderSlider.setBackground(Color.white);
+		borderSlider.setMinimum(0);
+		borderSlider.setMaximum((int)((SpinnerNumberModel) borderSpinner.getModel()).getMaximum());
+		borderSlider.setValue(defaultBorder);
+		borderSlider.addChangeListener((ChangeEvent e) -> borderSpinner.setValue(borderSlider.getValue()));
+		layout.putConstraint(SpringLayout.NORTH, borderSlider, 10, SpringLayout.SOUTH, borderLabel);
+		layout.putConstraint(SpringLayout.EAST, borderSlider, -5, SpringLayout.EAST, this);
+		add(borderSlider);
 		
 		fillDensityButton.setPreferredSize(new Dimension(190, 30));
 		fillDensityButton.addActionListener((ActionEvent e) -> {
@@ -300,7 +327,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 			cave.mapToImage();
 			repaint();
 		});
-		layout.putConstraint(SpringLayout.NORTH, fillDensityButton, 5, SpringLayout.SOUTH, borderSpinner);
+		layout.putConstraint(SpringLayout.NORTH, fillDensityButton, 5, SpringLayout.SOUTH, borderSlider);
 		layout.putConstraint(SpringLayout.EAST, fillDensityButton, -5, SpringLayout.EAST, this);
 		add(fillDensityButton);
 		
@@ -311,7 +338,8 @@ public class CaveGenerator extends JPanel implements KeyListener{
 			for (Ruleset r : rulesets)
 				if (name.equals(r.name))
 					selected = r;
-			System.out.println(selected.name);
+			fillDensitySpinner.setValue((int)(selected.fillDensity * 1000f));
+			iterationsSpinner.setValue(5);
 		});
 		layout.putConstraint(SpringLayout.NORTH, presetSpinner, 5, SpringLayout.SOUTH, fillDensityButton);
 		layout.putConstraint(SpringLayout.EAST, presetSpinner, -5, SpringLayout.EAST, this);
@@ -352,7 +380,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 		iterateButton.setPreferredSize(new Dimension(190, 30));
 		iterateButton.addActionListener((ActionEvent e) -> {
-			cave.smooth(rulesets.get(1).mapper);
+			cave.smooth(selected.mapper);
 			cave.mapToImage();
 			repaint();
 		});
@@ -362,7 +390,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 		smoothButton.setPreferredSize(new Dimension(190, 30));
 		smoothButton.addActionListener((ActionEvent e) -> {
-			for (int i = 0; i < smoothingIterations; i++) cave.smooth(rulesets.get(1).mapper);
+			for (int i = 0; i < smoothingIterations; i++) cave.smooth(selected.mapper);
 			cave.mapToImage();
 			repaint();
 		});
