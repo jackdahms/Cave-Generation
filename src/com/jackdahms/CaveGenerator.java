@@ -126,7 +126,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 			return cave.map;
 		}));
 		
-		rulesets.add(new Ruleset("third", 0.715f, 4, () -> {
+		rulesets.add(new Ruleset("third", 0.720f, 4, () -> {
 			for (int r = 0; r < cave.height; r++) {
 				for (int c = 0; c < cave.width; c++) {
 					if (cave.countSurroundingWalls(r, c) < 5) cave.map[r][c] = 0;
