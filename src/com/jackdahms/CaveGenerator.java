@@ -73,11 +73,13 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	@Override
 	public void paintComponent(Graphics g) {
 		int borderBuffer = 2;
+		int widthOffset = 14;
+		int heightOffset = 9; 
 		
 		g.setColor(Color.white);
 		g.fillRect(0, 0, getWidth() - 200 + borderBuffer, getHeight());
 
-		g.drawImage(cave.image, 0, 0, 800, 600, null);
+		g.drawImage(cave.image, 0, 0, 800 - widthOffset, 600 - heightOffset, null);
 		
 		g.fillRect(getWidth() - 200 + borderBuffer, 0, 200 + borderBuffer, getHeight());
 		
@@ -131,6 +133,18 @@ public class CaveGenerator extends JPanel implements KeyListener{
 				for (int c = 0; c < cave.width; c++) {
 					if (cave.countSurroundingWalls(r, c) < 5) cave.map[r][c] = 0;
 					else if (cave.countSurroundingWalls(r, c) > 5) cave.map[r][c] = 1;
+				}
+			}
+			return cave.map;
+		}));
+		
+		rulesets.add(new Ruleset("maze", 0.5f, 20, () -> {
+			for (int r = 0; r < cave.height; r++) {
+				for (int c = 0; c < cave.width; c++) {
+					if (cave.countSurroundingWalls(r, c) > 4) cave.map[r][c] = 0;
+					else if (cave.countSurroundingWalls(r, c) < 5) cave.map[r][c] = 1;
+					
+					if (cave.countSurroundingWalls(r, c) == 3) cave.map[r][c] = 1;
 				}
 			}
 			return cave.map;
