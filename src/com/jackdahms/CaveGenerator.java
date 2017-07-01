@@ -9,9 +9,9 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,15 +19,12 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerListModel;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
+@SuppressWarnings("serial")
 public class CaveGenerator extends JPanel implements KeyListener{
 		
 	static int FRAME_WIDTH = 1000;
@@ -171,7 +168,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		JLabel heightLabel = new JLabel("Height");
 		JSpinner widthSpinner = new JSpinner();
 		JSpinner heightSpinner = new JSpinner();
-		JSlider widthSlider = new JSlider(); //TODO do i even need sliders
+		JSlider widthSlider = new JSlider(); 
 		JSlider heightSlider = new JSlider(); //note: dims set on sliders, density/iterations set on spinners
 		
 		JLabel randomSeedLabel = new JLabel("Use Random Seed");
@@ -190,7 +187,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		JButton fillDensityButton = new JButton("Fill New Cave");
 		
 		JLabel presetLabel = new JLabel("Ruleset");
-		JSpinner presetSpinner = new JSpinner(); //TODO make this a drop down menu
+		JComboBox<String> presetBox = new JComboBox<>(rulesetNames.toArray(new String[rulesetNames.size()]));
 		JLabel iterationsLabel = new JLabel("Smoothing Iterations");
 		JSpinner iterationsSpinner = new JSpinner();
 		JSlider iterationsSlider = new JSlider();
@@ -345,21 +342,19 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		layout.putConstraint(SpringLayout.EAST, fillDensityButton, -5, SpringLayout.EAST, this);
 		add(fillDensityButton);
 		
-		SpinnerListModel listModel = new SpinnerListModel(rulesetNames);
-		presetSpinner.setModel(listModel);
-		presetSpinner.addChangeListener((ChangeEvent e) -> {
-			String name = (String) listModel.getValue();
-			for (Ruleset r : rulesets)
+		presetBox.addActionListener((ActionEvent e) -> {
+			String name = (String) presetBox.getSelectedItem();
+			for (Ruleset r: rulesets)
 				if (name.equals(r.name))
 					selected = r;
 			fillDensitySpinner.setValue((int)(selected.fillDensity * 1000f));
 			iterationsSpinner.setValue(selected.smoothingIterations);
 		});
-		layout.putConstraint(SpringLayout.NORTH, presetSpinner, 5, SpringLayout.SOUTH, fillDensityButton);
-		layout.putConstraint(SpringLayout.EAST, presetSpinner, -5, SpringLayout.EAST, this);
-		add(presetSpinner);
+		layout.putConstraint(SpringLayout.NORTH, presetBox, 5, SpringLayout.SOUTH, fillDensityButton);
+		layout.putConstraint(SpringLayout.EAST, presetBox, -5, SpringLayout.EAST, this);
+		add(presetBox);
 		
-		layout.putConstraint(SpringLayout.NORTH, presetLabel, 1, SpringLayout.NORTH, presetSpinner);
+		layout.putConstraint(SpringLayout.NORTH, presetLabel, 1, SpringLayout.NORTH, presetBox);
 		layout.putConstraint(SpringLayout.WEST, presetLabel, -195, SpringLayout.EAST, this);
 		add(presetLabel);
 		
@@ -374,7 +369,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 			smoothButton.setText("Smooth " + smoothingIterations + " Times");
 			iterationsSlider.setValue(smoothingIterations);
 		});
-		layout.putConstraint(SpringLayout.NORTH, iterationsSpinner, 5, SpringLayout.SOUTH, presetSpinner);
+		layout.putConstraint(SpringLayout.NORTH, iterationsSpinner, 5, SpringLayout.SOUTH, presetBox);
 		layout.putConstraint(SpringLayout.EAST, iterationsSpinner, -5, SpringLayout.EAST, this);
 		add(iterationsSpinner);
 		
