@@ -18,7 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
-import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
@@ -29,6 +28,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		
 	static int FRAME_WIDTH = 1000;
 	static int FRAME_HEIGHT = 600;
+	static int MENU_WIDTH = 200;
 
 	Ruleset selected;
 	List<Ruleset> rulesets = new ArrayList<Ruleset>();
@@ -50,7 +50,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		}
 		
 		JFrame frame = new JFrame("Cave Generation");
-		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT + 30);
+		frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
@@ -70,18 +70,17 @@ public class CaveGenerator extends JPanel implements KeyListener{
 	@Override
 	public void paintComponent(Graphics g) {
 		int borderBuffer = 2;
-		int widthOffset = 14;
-		int heightOffset = 9; 
 		
 		g.setColor(Color.white);
-		g.fillRect(0, 0, getWidth() - 200 + borderBuffer, getHeight());
+		g.fillRect(0, 0, getWidth() - MENU_WIDTH + borderBuffer, getHeight());
 
-		g.drawImage(cave.image, 0, 0, 800 - widthOffset, 600 - heightOffset, null);
+		//TODO fix image draw size
+		g.drawImage(cave.image, 0, 0, getWidth() - MENU_WIDTH + borderBuffer, getHeight(), null);
 		
-		g.fillRect(getWidth() - 200 + borderBuffer, 0, 200 + borderBuffer, getHeight());
+		g.fillRect(getWidth() - MENU_WIDTH + borderBuffer, 0, MENU_WIDTH + borderBuffer, getHeight());
 		
 		g.setColor(Color.black);
-		g.drawLine(getWidth() - 200 + borderBuffer, 0, getWidth() - 200 + borderBuffer, getHeight());	
+		g.drawLine(getWidth() - MENU_WIDTH + borderBuffer, 0, getWidth() - MENU_WIDTH + borderBuffer, getHeight());	
 	}
 	
 	void generate() {
@@ -362,7 +361,7 @@ public class CaveGenerator extends JPanel implements KeyListener{
 		numberModel.setMinimum(1);
 		numberModel.setMaximum(20);
 		iterationsSpinner.setModel(numberModel);
-		iterationsSpinner.setPreferredSize(new Dimension(35, 20));
+		iterationsSpinner.setPreferredSize(new Dimension(45, 20));
 		iterationsSpinner.setValue(defaultIterations);
 		iterationsSpinner.addChangeListener((ChangeEvent e) -> {
 			smoothingIterations = (int)iterationsSpinner.getValue();
